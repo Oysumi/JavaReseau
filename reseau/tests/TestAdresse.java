@@ -83,9 +83,9 @@ public class TestAdresse
       assert(res==32):"Nombre de bits incorrect" ;
        
       // adresse définie par des uns au début
-      a = new Adresse(32, 10) ;
+      a = new Adresse(64, 10) ;
       res = a.size() ;
-      assert(res==32):"Nombre de bits incorrect" ;
+      assert(res==64):"Nombre de bits incorrect" ;
 
       // adresse définie par un nombre variable d'octets en paramètre
       a = new Adresse(new Octet(255), new Octet(45), new Octet(100), new Octet(192)) ;
@@ -292,7 +292,7 @@ public class TestAdresse
       // adresse définie par un nombre variable d'octets en paramètre
       a = new Adresse(new Octet(255), new Octet(45), new Octet(100), new Octet(192)) ;
       aBis = new Adresse(new Octet(22), new Octet(0), new Octet(55), new Octet(1)) ;
-      System.out.println(a) ;
+      a.masquer(aBis) ;
       b = a.toString().equals("22.0.36.0") ;
       assert b : "Mauvais masque appliqué" ; 
    }
