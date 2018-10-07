@@ -9,10 +9,12 @@ import reseau.adresses.Octet;
  */
 public class Message {
 
+	private ArrayList<Octet> myMessage ;
     /**
      * Construit un message vide
      */
     public Message() {
+    	
     }
 
     /**

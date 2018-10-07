@@ -128,6 +128,15 @@ public class Adresse {
      * @exception AssertionError si le masque et le receveur ne sont pas de la même taille
      */
     public void masquer(Adresse masque) {
+
+        assert(this.size() == masque.size()):"Le masque et le receveur ne sont pas de la même taille" ;
+        int i = 0 ;
+
+        for ( Octet o : masque.adr )
+        {
+            this.adr[i].masquer(o) ;
+            i++ ;
+        }
     }
 
     /**

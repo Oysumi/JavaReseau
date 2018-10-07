@@ -15,6 +15,7 @@ public class TestAdresse
       testConstructeurCopie() ;
       testGetOctet() ;
       testInverser() ;
+      testMasque() ;
   }
 
   private static void testToString()
@@ -245,6 +246,55 @@ public class TestAdresse
       a.inverser() ;
       b = a.toString().equals("0.210.155.63") ;
       assert b :"Mauvais complément à 1" ; 
+   }
+
+   private static void testMasque()
+   {
+      Adresse a ;
+      Adresse aBis ;
+      boolean b ;
+
+      /* LE MASQUE EFFECTUE UNE COMPARAISON DES BITS UN PAR UN */
+
+      // adresse vide à la base
+      a = new Adresse(64) ;
+      b = a.toString().equals("0.0.0.0.0.0.0.0") ; // On vérifie que la chaîne est bien vide au départ
+      assert b : "Adresse non vide" ;
+
+      a.setOctets(new Octet(148), new Octet(178), new Octet(33), new Octet(41)) ;
+      b = ( a.toString().equals("148.178.33.41.0.0.0.0")) ; // On vérifie que à partir de la chaîne vide, on a fixé les octets au bons endroits
+      assert b : "Octets non fixés" ;
+
+      aBis = new Adresse("255.255.255.0.0.0.0.0") ;
+      a.masquer(aBis) ;
+      b = a.toString().equals("148.178.33.0.0.0.0.0") ;
+      assert b : "Mauvais masque appliqué" ;
+      aBis.setOctet(new Octet(22), 1) ; // On test si on met un valeur autre que 255 dans le masque si on obtient le résultat escompté
+      a.masquer(aBis) ;
+      b = a.toString().equals("148.18.33.0.0.0.0.0") ; // ET sur les bits un à un donc (0001 0110)[2] ET (1011 0010)[2] = (0001 0010)[2] = 18[10]
+      assert b : "Mauvais masque appliqué" ;
+
+      // adresse définie
+      a = new Adresse("192.45.43.100");
+      aBis = new Adresse(32) ;
+      aBis.setOctet(new Octet(255), 3) ;
+      a.masquer(aBis) ;
+      b = a.toString().equals("0.0.0.100") ;
+      assert b : "Mauvais masque appliqué" ;
+       
+      // adresse définie par des uns au début
+      a = new Adresse(32, 10) ;
+      aBis = new Adresse(32, 6) ;
+      a.masquer(aBis) ;
+      b = a.toString().equals("252.0.0.0") ;
+      assert b : "Mauvais masque appliqué" ;
+
+      // adresse définie par un nombre variable d'octets en paramètre
+      a = new Adresse(new Octet(255), new Octet(45), new Octet(100), new Octet(192)) ;
+      aBis = new Adresse(new Octet(22), new Octet(0), new Octet(55), new Octet(1)) ;
+      System.out.println(a) ;
+      b = a.toString().equals("22.0.36.0") ;
+      assert b : "Mauvais masque appliqué" ; 
    }
 } 
 
