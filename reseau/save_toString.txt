@@ -1,0 +1,23 @@
+public String toString() {
+
+    	// au pire des cas, un octet est > 100 donc 3 digits de représentation et un point pour séparer donc on multiplie par ( 3 + 1 ) 
+    	StringBuilder message = new StringBuilder(this.size() * 4) ;
+
+    	if ( this.size() == 0 ) // Si l'on a instancié un message vide
+    	{
+    		return "" ;
+    	}
+    	else // Si le message n'est pas vide
+    	{
+    		for ( Octet o : this.myMessage )
+    		{
+    			message.append(o) ;
+    			message.append(".") ;
+    		}
+    	}
+
+    	// De par la boucle, on rajoute forcément un point en trop à la fin du message qu'il faut supprimer
+        int pointASupp = message.length() ;
+        message.deleteCharAt(pointASupp - 1) ;
+
+return message.toString() ;

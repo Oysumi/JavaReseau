@@ -26,6 +26,15 @@ public class Message {
      * @exception AssertionError si mess est null
      */
     public Message(Message mess) {
+    	assert(mess != null):"Appel au constructeur avec null" ;
+
+    	int taille = mess.size() ;
+    	this.myMessage = new ArrayList<Octet>(taille) ;
+
+    	for ( int i = 0 ; i < taille ; i++ )
+    	{
+    		this.myMessage.add(mess.myMessage.get(i)) ;
+    	}
     }
     
     /**
@@ -114,6 +123,17 @@ public class Message {
      * @param mot chaîne de caractères qui constitue le message
      */
     public Message(String mot) {
+
+    	assert(mot!=null):"Appel au constructeur avec null" ;
+
+    	int taille = mot.length() ;
+
+    	this.myMessage = new ArrayList<Octet>(taille) ;
+
+    	for (int k = 0 ; k < taille ; k++)
+    	{
+    		this.myMessage.add(new Octet((int)mot.charAt(k))) ;
+    	}
     }
     
     /**
@@ -121,6 +141,22 @@ public class Message {
      * @param adr adresse à placer dans le message
      */
     public Message(Adresse adr) {
+
+    	int nbOctet = adr.getNbreOctets() ;
+    	short[] param = new short[nbOctet] ;
+
+    	this.myMessage = new ArrayList<Octet>(100 + nbOctet) ; // On prévoit toujours de la place en plus en cas de modifications
+
+    	for ( int i = 0 ; i < nbOctet ; i++ )
+    	{
+    		param[i] = (short)adr.getOctet(i).getValue() ;
+    	}
+
+    	// Un petit entier est codé sur un octet
+    	for ( short entier : param )
+    	{
+    		this.myMessage.add(new Octet(entier)) ;
+    	}
     }
         
     /**
@@ -171,8 +207,8 @@ public class Message {
     
     @Override
     public String toString() {
-
-    	// au pire des cas, un octet est > 100 donc 3 digits de représentation et un point pour séparer donc on multiplie par ( 3 + 1 ) 
+		
+		// au pire des cas, un octet est > 100 donc 3 digits de représentation et un point pour séparer donc on multiplie par ( 3 + 1 ) 
     	StringBuilder message = new StringBuilder(this.size() * 4) ;
 
     	if ( this.size() == 0 ) // Si l'on a instancié un message vide
@@ -192,7 +228,7 @@ public class Message {
         int pointASupp = message.length() ;
         message.deleteCharAt(pointASupp - 1) ;
 
-        return message.toString() ;
+		return message.toString() ;
     }
 
     /**
@@ -203,7 +239,9 @@ public class Message {
      * @return un entier
      */
     public int extraireEntier(int index) {
-        return 0 ;
+    	assert(index>=0 && index<=this.size()):"Extraction d'octet hors de la liste" ;
+    	int result = this.myMessage.get(index).getValue() + this.myMessage.get(index+1).getValue() ;
+        return result ;
     }
 
     /**
@@ -213,7 +251,13 @@ public class Message {
      * @return une adresse
      */
     public Adresse extraireAdresse(int nbOctets) {
-        return null ;
+    	assert(nbOctets>=0 && nbOctets<=this.size()):"Impossible d'extraire les nb premiers octets pour en faire une adresse" ;
+    	Octet[] param = new Octet[nbOctets] ;
+    	for ( int i=0 ; i < nbOctets ; i++ )
+    	{
+    		param[i] = this.myMessage.get(i) ;
+    	}
+        return new Adresse(param) ;
     }
 
     /**
@@ -221,7 +265,30 @@ public class Message {
      * @return null si l'un des octets n'est pas une lettre (maj ou min)
      */
     public String extraireChaine() {
-        return null ;
+
+        StringBuilder message = new StringBuilder(this.size()) ;
+        String pasCaractère = null ; // on prévoit le cas où l'on a une valeur qui ne code pas un caractère
+        boolean nullOuPas = false ;
+
+    	if ( this.size() == 0 ) // Si l'on a instancié un message vide
+    	{
+    		return "" ;
+    	}
+    	else // Si le message n'est pas vide
+    	{
+    		for ( Octet o : this.myMessage )
+    		{	
+    			if ( o.estUneLettre() || o.estUnPoint() )
+    			{
+    				message.append((char)o.getValue()) ;
+    			}
+    			else
+    			{
+    				nullOuPas = true ;
+    			}
+    		}
+    	}
+    	return ( nullOuPas ) ? pasCaractère : message.toString() ;
     }
 
     /**
