@@ -240,6 +240,7 @@ public class Message {
      */
     public int extraireEntier(int index) {
     	assert(index>=0 && index<=this.size()):"Extraction d'octet hors de la liste" ;
+    	assert(this.size() != 0):"Extraction d'un entier sur une liste vide" ;
     	int result = this.myMessage.get(index).getValue() + this.myMessage.get(index+1).getValue() ;
         return result ;
     }
