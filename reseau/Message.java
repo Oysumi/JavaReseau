@@ -2,6 +2,7 @@ package reseau;
 
 import reseau.adresses.Adresse;
 import reseau.adresses.Octet;
+import java.util.ArrayList ;
 
 /**
  * @author martine
@@ -14,7 +15,9 @@ public class Message {
      * Construit un message vide
      */
     public Message() {
-    	
+    	/* Quitte à écrire un message, on lui fournit une capacité de 100 "espaces" pour éviter la multiplication des objets morts
+    	 * si mauvaise utilisation de l'application il y a */
+    	this.myMessage = new ArrayList<Octet>(100) ;
     }
 
     /**
@@ -28,15 +31,82 @@ public class Message {
     /**
      * Constructeur d'un message à partir des petits entiers
      * @param v des petits entiers qui constituent le message
+     * @exception AssertionError si un des paramètres > 255 ou < 0
      */
     public Message(short... v) {
+
+    	// On peut se permettre d'allouer en mémoire avant de vérifier la justesse des entiers, car en cas d'erreur l'application s'arrête
+    	this.myMessage = new ArrayList<Octet>(100 + v.length) ; // on prévoit une plus grande capacité en cas de modifications
+
+    	// Un petit entier est codé sur un octet
+    	for ( short entier : v )
+    	{
+    		assert(entier>=0 && entier<=255):"Entier négatif ou mauvais codage sur un octet" ;
+    		this.myMessage.add(new Octet(entier)) ;
+    	}
     }
     
     /**
      * Constructeur d'un message à partir des entiers
      * @param v des entiers qui constituent le message
+     * @exception AssertionError si un des paramètres > 65 535 ou < 0
      */
     public Message(int... v) {
+
+    	// On peut se permettre d'allouer en mémoire avant de vérifier la justesse des entiers, car en cas d'erreur l'application s'arrête
+    	this.myMessage = new ArrayList<Octet>(100 + v.length * 2) ; // car grand entier codé sur 2 octets ET un prévoit une grande capacité pour modifs
+    	
+    	/* Nous avons besoin d'une représentation binaire de l'entier. On utilisera la méthode toBinarayString de l'enveloppe Integer
+    	 * et nous affecterons le résultat à un StringBuilder pour éviter la multiplication des objets morts.
+    	 * Au pire des cas, la représentation binaire est de taille 16 donc on initialise notre StringBuilder avec une capacité de 16*/
+    	StringBuilder representBin = new StringBuilder(16) ;
+    	int taille = 0 ; // permet de connaître la taille de la représentation binaire de notre entier
+    	int index = 0 ; // permet d'extraire les octets
+    	Octet o ;
+
+    	// Un entier est codé sur un octet
+    	for ( int entier : v )
+    	{
+    		assert(entier>=0 && entier<=65535):"Entier négatif ou trop grand pour codage sur 2 octets" ;
+
+    		int baseDeux = 2 ; // Permettra la conversion d'un binaire en base 10 pour Integer.parseInt
+
+    		// On ajoute dans le StringBuilder la chaîne de caractère composée de 0 et de 1 représentant notre entier en binaire
+    		representBin.append( Integer.toBinaryString(entier) ) ;
+    		// On récupère la taille de cette représentation binaire
+    		taille = representBin.length() ;
+    		// On récupère un index qui permet de créer le premier octet (avec poids forts en premier)
+    		index = ( taille - 8 >= 0 ) ? taille - 8 : taille ;
+
+    		/* Si la taille est strictement supérieure à 8, alors notre entier est supérieur à 255 et nécessite un octet supplémentaire pour
+    		 * coder le reste */
+    		if ( taille > 8 )
+    		{
+    			o = new Octet( Integer.parseInt(representBin.substring(0, index), baseDeux) ) ; // partie des bits de poids fort
+    			this.myMessage.add(o) ;
+
+    			o = new Octet( Integer.parseInt(representBin.substring(index, taille), baseDeux) ) ; // bits poids faible
+    			this.myMessage.add(o) ;
+    		}
+    		else // sinon, notre entier est compris entre 0 et 255 et est codé en réalité sur un octet, on ajoute donc des 0 au début
+    		{
+    			o = new Octet(0) ;
+    			this.myMessage.add(o) ; // partie des bits de poids fort
+
+    			if ( taille == 1 ) // alors on extrait uniquement le bit 0 ou 1
+    			{
+    				o = new Octet( Character.getNumericValue(representBin.charAt(0)) ) ; // bits poids faible
+    			}
+    			else // sinon on extrait l'ensemble des bits
+    			{
+    				o = new Octet( Integer.parseInt(representBin.substring(0, taille), baseDeux) ) ; // bits poids faible
+    			}
+
+    			this.myMessage.add(o) ;
+    		}
+
+    		representBin.delete(0,taille) ; // on réutilise notre StringBuilder
+    	}
     }
     
     /**
@@ -58,7 +128,7 @@ public class Message {
      * @return le nombre d'octets
      */
     public int size() {
-        return 0;
+        return this.myMessage.size() ;
     }
 
     /**
@@ -101,7 +171,28 @@ public class Message {
     
     @Override
     public String toString() {
-        return null ;
+
+    	// au pire des cas, un octet est > 100 donc 3 digits de représentation et un point pour séparer donc on multiplie par ( 3 + 1 ) 
+    	StringBuilder message = new StringBuilder(this.size() * 4) ;
+
+    	if ( this.size() == 0 ) // Si l'on a instancié un message vide
+    	{
+    		return "" ;
+    	}
+    	else // Si le message n'est pas vide
+    	{
+    		for ( Octet o : this.myMessage )
+    		{
+    			message.append(o) ;
+    			message.append(".") ;
+    		}
+    	}
+
+    	// De par la boucle, on rajoute forcément un point en trop à la fin du message qu'il faut supprimer
+        int pointASupp = message.length() ;
+        message.deleteCharAt(pointASupp - 1) ;
+
+        return message.toString() ;
     }
 
     /**
