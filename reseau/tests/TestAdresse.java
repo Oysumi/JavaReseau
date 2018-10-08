@@ -50,9 +50,21 @@ public class TestAdresse
       a = new Adresse(16) ;
       res = a.getNbreOctets() ;
       assert(res==2):"Nombre d'octets incorrect" ;
+      a.setOctet(new Octet(24),1) ;
+      res = a.getNbreOctets() ;
+      assert(res==2):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(28), new Octet(87)) ;
+      res = a.getNbreOctets() ;
+      assert(res==2):"Nombre d'octets incorrect" ;
 
       // adresse définie
       a = new Adresse("192.45.43.100.241.36");
+      res = a.getNbreOctets() ;
+      assert(res==6):"Nombre d'octets incorrect" ;
+      a.setOctet(new Octet(24), 5) ;
+      res = a.getNbreOctets() ;
+      assert(res==6):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(27), new Octet(28), new Octet(87)) ;
       res = a.getNbreOctets() ;
       assert(res==6):"Nombre d'octets incorrect" ;
        
@@ -60,9 +72,21 @@ public class TestAdresse
       a = new Adresse(32, 10) ;
       res = a.getNbreOctets() ;
       assert(res==4):"Nombre d'octets incorrect" ;
+      a.setOctet(new Octet(), 2) ;
+      res = a.getNbreOctets() ;
+      assert(res==4):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(27), new Octet(28), new Octet(255)) ;
+      res = a.getNbreOctets() ;
+      assert(res==4):"Nombre d'octets incorrect" ;
 
       // adresse définie par un nombre variable d'octets en paramètre
       a = new Adresse(new Octet(255), new Octet(45), new Octet(100)) ;
+      res = a.getNbreOctets() ;
+      assert(res==3):"Nombre d'octets incorrect" ;
+      a.setOctet(new Octet(255), 0) ;
+      res = a.getNbreOctets() ;
+      assert(res==3):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(27), new Octet()) ;
       res = a.getNbreOctets() ;
       assert(res==3):"Nombre d'octets incorrect" ;
    }
@@ -76,21 +100,45 @@ public class TestAdresse
       a = new Adresse(16) ;
       res = a.size() ;
       assert(res==16):"Nombre de bits incorrect" ;
+      a.setOctet(new Octet(24),1) ;
+      res = a.size() ;
+      assert(res==16):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(28), new Octet(87)) ;
+      res = a.size() ;
+      assert(res==16):"Nombre d'octets incorrect" ;
 
       // adresse définie
       a = new Adresse("192.45.43.100");
       res = a.size() ;
       assert(res==32):"Nombre de bits incorrect" ;
+      a.setOctet(new Octet(24),1) ;
+      res = a.size() ;
+      assert(res==32):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(28), new Octet(87)) ;
+      res = a.size() ;
+      assert(res==32):"Nombre d'octets incorrect" ;
        
       // adresse définie par des uns au début
       a = new Adresse(64, 10) ;
       res = a.size() ;
       assert(res==64):"Nombre de bits incorrect" ;
+      a.setOctet(new Octet(24),1) ;
+      res = a.size() ;
+      assert(res==64):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(28), new Octet(87)) ;
+      res = a.size() ;
+      assert(res==64):"Nombre d'octets incorrect" ;
 
       // adresse définie par un nombre variable d'octets en paramètre
       a = new Adresse(new Octet(255), new Octet(45), new Octet(100), new Octet(192)) ;
       res = a.size() ;
       assert(res==32):"Nombre de bits incorrect" ;
+      a.setOctet(new Octet(24),1) ;
+      res = a.size() ;
+      assert(res==32):"Nombre d'octets incorrect" ;
+      a.setOctets(new Octet(28), new Octet(87), new Octet(), new Octet()) ;
+      res = a.size() ;
+      assert(res==32):"Nombre d'octets incorrect" ;
    }
 
    private static void testSetOctet()
