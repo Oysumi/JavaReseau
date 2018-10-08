@@ -58,63 +58,18 @@ public class Message {
     /**
      * Constructeur d'un message à partir des entiers
      * @param v des entiers qui constituent le message
-     * @exception AssertionError si un des paramètres > 65 535 ou < 0
+     * @exception AssertionError si un des entiers est supérieur au max que l'on peut coder sur 16 bits
      */
     public Message(int... v) {
 
     	// On peut se permettre d'allouer en mémoire avant de vérifier la justesse des entiers, car en cas d'erreur l'application s'arrête
     	this.myMessage = new ArrayList<Octet>(100 + v.length * 2) ; // car grand entier codé sur 2 octets ET un prévoit une grande capacité pour modifs
-    	
-    	/* Nous avons besoin d'une représentation binaire de l'entier. On utilisera la méthode toBinarayString de l'enveloppe Integer
-    	 * et nous affecterons le résultat à un StringBuilder pour éviter la multiplication des objets morts.
-    	 * Au pire des cas, la représentation binaire est de taille 16 donc on initialise notre StringBuilder avec une capacité de 16*/
-    	StringBuilder representBin = new StringBuilder(16) ;
-    	int taille = 0 ; // permet de connaître la taille de la représentation binaire de notre entier
-    	int index = 0 ; // permet d'extraire les octets
-    	Octet o ;
 
     	// Un entier est codé sur un octet
     	for ( int entier : v )
     	{
-    		assert(entier>=0 && entier<=65535):"Entier négatif ou trop grand pour codage sur 2 octets" ;
-
-    		int baseDeux = 2 ; // Permettra la conversion d'un binaire en base 10 pour Integer.parseInt
-
-    		// On ajoute dans le StringBuilder la chaîne de caractère composée de 0 et de 1 représentant notre entier en binaire
-    		representBin.append( Integer.toBinaryString(entier) ) ;
-    		// On récupère la taille de cette représentation binaire
-    		taille = representBin.length() ;
-    		// On récupère un index qui permet de créer le premier octet (avec poids forts en premier)
-    		index = ( taille - 8 >= 0 ) ? taille - 8 : taille ;
-
-    		/* Si la taille est strictement supérieure à 8, alors notre entier est supérieur à 255 et nécessite un octet supplémentaire pour
-    		 * coder le reste */
-    		if ( taille > 8 )
-    		{
-    			o = new Octet( Integer.parseInt(representBin.substring(0, index), baseDeux) ) ; // partie des bits de poids fort
-    			this.myMessage.add(o) ;
-
-    			o = new Octet( Integer.parseInt(representBin.substring(index, taille), baseDeux) ) ; // bits poids faible
-    			this.myMessage.add(o) ;
-    		}
-    		else // sinon, notre entier est compris entre 0 et 255 et est codé en réalité sur un octet, on ajoute donc des 0 au début
-    		{
-    			o = new Octet(0) ;
-    			this.myMessage.add(o) ; // partie des bits de poids fort
-
-    			if ( taille == 1 ) // alors on extrait uniquement le bit 0 ou 1
-    			{
-    				o = new Octet( Character.getNumericValue(representBin.charAt(0)) ) ; // bits poids faible
-    			}
-    			else // sinon on extrait l'ensemble des bits
-    			{
-    				o = new Octet( Integer.parseInt(representBin.substring(0, taille), baseDeux) ) ; // bits poids faible
-    			}
-
-    			this.myMessage.add(o) ;
-    		}
-
-    		representBin.delete(0,taille) ; // on réutilise notre StringBuilder
+    		assert(entier <= 65535):"Entier trop grand" ;
+    		this.ajouter(entier) ;
     	}
     }
     
@@ -172,6 +127,7 @@ public class Message {
      * @param x entier à ajouter
      */
     public void ajouter(short x) {
+    	this.myMessage.add(new Octet(x)) ;
     }
 
     /**
@@ -179,6 +135,50 @@ public class Message {
      * @param x entier à ajouter
      */
     public void ajouter(int x) {
+
+    	/* Nous avons besoin d'une représentation binaire de l'entier. On utilisera la méthode toBinarayString de l'enveloppe Integer
+    	 * et nous affecterons le résultat à un StringBuilder pour éviter la multiplication des objets morts.
+    	 * Au pire des cas, la représentation binaire est de taille 16 donc on initialise notre StringBuilder avec une capacité de 16*/
+    	StringBuilder representBin = new StringBuilder(16) ;
+    	int taille = 0 ; // permet de connaître la taille de la représentation binaire de notre entier
+    	int index = 0 ; // permet d'extraire les octets
+    	Octet o ;
+
+    	int baseDeux = 2 ; // Permettra la conversion d'un binaire en base 10 pour Integer.parseInt
+
+    	// On ajoute dans le StringBuilder la chaîne de caractère composée de 0 et de 1 représentant notre entier en binaire
+    	representBin.append( Integer.toBinaryString(x) ) ;
+    	// On récupère la taille de cette représentation binaire
+    	taille = representBin.length() ;
+    	// On récupère un index qui permet de créer le premier octet (avec poids forts en premier)
+    	index = ( taille - 8 >= 0 ) ? taille - 8 : taille ;
+
+    	/* Si la taille est strictement supérieure à 8, alors notre entier est supérieur à 255 et nécessite un octet supplémentaire pour
+    	 * coder le reste */
+    	if ( taille > 8 )
+    	{
+    		o = new Octet( Integer.parseInt(representBin.substring(0, index), baseDeux) ) ; // partie des bits de poids fort
+    		this.myMessage.add(o) ;
+
+   			o = new Octet( Integer.parseInt(representBin.substring(index, taille), baseDeux) ) ; // bits poids faible
+   			this.myMessage.add(o) ;
+   		}
+   		else // sinon, notre entier est compris entre 0 et 255 et est codé en réalité sur un octet, on ajoute donc des 0 au début
+   		{
+   			o = new Octet(0) ;
+   			this.myMessage.add(o) ; // partie des bits de poids fort
+
+   			if ( taille == 1 ) // alors on extrait uniquement le bit 0 ou 1
+   			{
+   				o = new Octet( Character.getNumericValue(representBin.charAt(0)) ) ; // bits poids faible
+   			}
+   			else // sinon on extrait l'ensemble des bits
+   			{
+   				o = new Octet( Integer.parseInt(representBin.substring(0, taille), baseDeux) ) ; // bits poids faible
+   			}
+
+   			this.myMessage.add(o) ;
+   		}
     }
 
     /**
@@ -187,6 +187,8 @@ public class Message {
      * @exception AssertionError si o est null
      */
     public void ajouter(Octet o) {
+    	assert(o != null):"Ajout d'un octet null" ;
+    	this.myMessage.add(new Octet(o)) ;
     }
     
     /**
@@ -195,6 +197,14 @@ public class Message {
      * @exception AssertionError si mess est null
      */
     public void ajouter(Message mess) {
+    	assert(mess != null):"Ajout d'un message null" ;
+
+    	int nbOctet = mess.size() ;
+
+        for ( int i = 0 ; i < nbOctet ; i++ )
+        {
+            this.myMessage.add(new Octet(mess.myMessage.get(i))) ;
+        }
     }
     
     /**
@@ -203,6 +213,16 @@ public class Message {
      * @exception AssertionError si adr est null
      */
     public void ajouter(Adresse adr) {
+    	assert(adr != null):"Ajout d'une adresse null" ;
+
+    	int nbOctet = adr.getNbreOctets() ;
+    	Octet o ;
+
+        for ( int i = 0 ; i < nbOctet ; i++ )
+        {
+        	o = new Octet(adr.getOctet(i)) ;
+            this.myMessage.add(o) ;
+        }
     }
     
     @Override
@@ -297,8 +317,24 @@ public class Message {
      * @param i valeur à ajouter
      * @param bi borne inférieure
      * @param bs borne supérieure
+     * @exception AssertionError si on a pas 0 <= bi < bs <= size()
      */
     public void augmenter(int i, int bi, int bs) {
+
+    	boolean b ;
+    	int inf = bi ;
+    	int sup = bs ;
+
+    	b = ( 0 <= inf ) ;
+    	b = b && (inf <= sup) ;
+    	b = b && (sup < this.size()) ;
+
+    	assert b : "Impossible d'augmenter la valeur des octets dans l'intervalle donné (0 <= bi <= bs < size())" ;
+
+    	for ( int j = inf ; j <= sup ; j++ )
+    	{
+    		this.myMessage.get(j).ajouter(i) ;
+    	}
     }
 
     /**
@@ -307,6 +343,17 @@ public class Message {
      * @exception AssertionError si i n'est pas dans le domaine du tableau
      */
     public void supprimer(int i) {
+
+    	int taille = this.size() ;
+    	assert(i>=0 && i<=taille):"Impossible de retirer des éléments hors du message" ;
+    	int j = 0 ;
+    	int iPrime = i ;
+
+    	while ( j < iPrime )
+    	{
+    		this.myMessage.remove(j) ;
+    		iPrime-- ;
+    	}
     }
 
     /**
@@ -316,6 +363,25 @@ public class Message {
      * @exception AssertionError si on n'a pas 0 &le; debut &le; fin &lt; size()
      */
     public void supprimer(int debut, int fin) {
+
+    	boolean b ;
+    	int inf = debut ;
+    	int sup = fin ;
+
+    	b = ( 0 <= inf ) ;
+    	b = b && (inf <= sup) ;
+    	b = b && (sup < this.size()) ;
+
+    	assert b : "Impossible de supprimer des données hors du message" ;
+
+    	int j = debut ;
+    	int finPrime = fin ;
+
+    	while ( j <= finPrime )
+    	{
+    		this.myMessage.remove(j) ;
+    		finPrime-- ;
+    	}
     }
 
 }

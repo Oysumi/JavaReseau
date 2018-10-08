@@ -2,13 +2,17 @@ package reseau.tests;
 
 import reseau.Message;
 import reseau.adresses.Adresse;
+import reseau.adresses.Octet;
 
 public class TestMessage
 {
 	public static void main(String[] args)
     {
-        testSize() ;
     	testToString() ;
+        testAugmenter() ;
+        testAjouter() ;
+        testSupprimer() ;
+        testSize() ;
         testExtraireChaine() ;
         testExtraireEntier() ;
     }
@@ -55,9 +59,17 @@ public class TestMessage
         m = new Message(mBis) ;
         b = ( m.toString().equals(mBis.toString()) ) ; // on vérifie d'abord qu'il y a bien copie du message (superficielle ou profonde)
         assert b : "Mauvaise copie" ;
-        mBis = new Message("Hello world !") ; // on modifie mBis pour vérifier la copie profonde
+        b = ( m.toString().equals("22.247.246.24.0.245.0.87") ) ;
+        assert b : "Mauvaise représentation toString" ;
+        mBis = new Message("KernelPanic") ; // on modifie mBis pour vérifier la copie profonde
         b = ( m.toString().equals(mBis.toString()) ) ; // si b = faux, alors seul mBis a été modifié donc on a bien une copie profonde
         assert !b : "Copie superficielle et non profonde" ;
+        b = ( mBis.toString().equals("75.101.114.110.101.108.80.97.110.105.99")) ; // KernelPanic en ASCII
+        assert b : "Mauvaise représentation toString" ;
+        b = ( m.toString().equals("75.101.114.110.101.108.80.97.110.105.99")) ;
+        assert !b : "Mauvaise représentation toString par copie superficielle" ;
+        b = ( m.toString().equals("22.247.246.24.0.245.0.87")) ;
+        assert b : "Mauvaise représentation toString" ;
     }
 
     public static void testSize()
@@ -67,30 +79,106 @@ public class TestMessage
         Adresse a ;
         boolean b ;
 
-        // message vide
-        m = new Message() ;
-        assert (m.size()==0) : "Mauvaise taille (message vide)" ;
-
-        // message de petits entiers
         short i = 72 ;
         short j = 69 ;
         short k = 89 ;
 
+        // message vide
+        m = new Message() ;
+        assert (m.size()==0) : "Mauvaise taille (message vide)" ;
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==1) : "Mauvaise taille" ;
+        m.ajouter(new Adresse("78.25.66.21")) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.supprimer(0) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.ajouter(j) ;
+        assert(m.size()==6) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==8) : "Mauvaise taille" ;
+        m.augmenter(45,0,4) ;
+        assert(m.size()==8) : "Mauvaise taille" ;
+        m.supprimer(2,4) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+
+        // message de petits entiers
+
+        /* short i = 72 ;
+         * short j = 69 ;
+         * short k = 89 ;
+         */
+
         m = new Message(i, j, k) ;
         assert(m.size()==3) : "Mauvaise taille" ;
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==4) : "Mauvaise taille" ;
+        m.ajouter(new Adresse("78.25.66.25")) ;
+        assert(m.size()==8) : "Mauvaise taille" ;
+        m.supprimer(4) ;
+        assert(m.size()==4) : "Mauvaise taille" ;
+        m.ajouter(i) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==7) : "Mauvaise taille" ;
+        m.augmenter(45,0,4) ;
+        assert(m.size()==7) : "Mauvaise taille" ;
+        m.supprimer(2,4) ;
+        assert(m.size()==4) : "Mauvaise taille" ;
 
         // message de grands entiers
         m = new Message(21345, 27765, 29742) ; // on a des grands entiers, donc ils sont codés sur deux octets
         assert(m.size()==6): "Mauvaise taille" ;
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==7) : "Mauvaise taille" ;
+        m.ajouter(new Adresse("78.25.66.78")) ;
+        assert(m.size()==11) : "Mauvaise taille" ;
+        m.supprimer(5) ;
+        assert(m.size()==6) : "Mauvaise taille" ;
+        m.ajouter(j) ;
+        assert(m.size()==7) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==9) : "Mauvaise taille" ;
+        m.augmenter(45,0,4) ;
+        assert(m.size()==9) : "Mauvaise taille" ;
+        m.supprimer(2,4) ;
+        assert(m.size()==6) : "Mauvaise taille" ;
 
         // message avec une chaîne de caractères en paramètre
         m = new Message("Hello.") ;
         assert(m.size()==6): "Mauvaise taille" ;
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==7) : "Mauvaise taille" ;
+        m.ajouter(new Adresse("78.25.66.78.145.24")) ;
+        assert(m.size()==13) : "Mauvaise taille" ;
+        m.supprimer(2) ;
+        assert(m.size()==11) : "Mauvaise taille" ;
+        m.ajouter(j) ;
+        assert(m.size()==12) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==14) : "Mauvaise taille" ;
+        m.augmenter(2,0,10) ;
+        assert(m.size()==14) : "Mauvaise taille" ;
+        m.supprimer(8,8) ;
+        assert(m.size()==13) : "Mauvaise taille" ;
 
         // message avec une adresse en paramètre
         a = new Adresse("187.25.63.1") ;
         m = new Message(a) ;
         assert(m.size()==4): "Mauvaise taille" ;
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.ajouter(new Adresse("78.25.66.0.0.7")) ;
+        assert(m.size()==11) : "Mauvaise taille" ;
+        m.supprimer(9) ;
+        assert(m.size()==2) : "Mauvaise taille" ;
+        m.ajouter(j) ;
+        assert(m.size()==3) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.augmenter(2,1,2) ;
+        assert(m.size()==5) : "Mauvaise taille" ;
+        m.supprimer(0,4) ;
+        assert(m.size()==0) : "Mauvaise taille" ;
 
         // messge avec un message en paramètre
         mBis = new Message("KernelPanic") ;
@@ -101,6 +189,21 @@ public class TestMessage
         mBis = new Message("Hello world !") ; // on modifie mBis pour vérifier la copie profonde
         b = ( m.size() != mBis.size() ) ;
         assert b : "Mauvaise taille dûe à une copie superficielle" ;
+
+        m.ajouter(new Octet(87)) ;
+        assert(m.size()==12) : "Mauvaise taille" ;
+        m.ajouter(new Adresse(32)) ;
+        assert(m.size()==16) : "Mauvaise taille" ;
+        m.supprimer(4) ;
+        assert(m.size()==12) : "Mauvaise taille" ;
+        m.ajouter(j) ;
+        assert(m.size()==13) : "Mauvaise taille" ;
+        m.ajouter(89) ; // int donc codé sur 2 octets
+        assert(m.size()==15) : "Mauvaise taille" ;
+        m.augmenter(2,0,11) ;
+        assert(m.size()==15) : "Mauvaise taille" ;
+        m.supprimer(0,8) ;
+        assert(m.size()==6) : "Mauvaise taille" ;
     }
 
     public static void testExtraireChaine()
@@ -194,5 +297,234 @@ public class TestMessage
         mBis = new Message("Hello world !") ; // on modifie mBis pour vérifier la copie profonde
         b = ( m.extraireEntier(1) != 209 ) ; // 209 = 101 (e en ASCII) + 108 (l en ASCII)
         assert b : "Mauvaise extraction d'entier par copie superficielle" ;
+    }
+
+    private static void testAjouter()
+    {
+        Message m ;
+        Message mBis ;
+        Adresse a ;
+
+        short ajout = 125 ;
+        int ajoutGrand = 24456 ;
+        int ajoutGrandPrime = 120 ;
+
+        // message vide
+        m = new Message() ;
+        assert(m.toString().equals("")):"Mauvaise initialisation message vide" ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+
+        m.ajouter(new Octet(124)) ;
+        assert(m.toString().equals("125.95.136.0.120.124")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse(32) ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("125.95.136.0.120.124.0.0.0.0")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("HEY") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("125.95.136.0.120.124.0.0.0.0.72.69.89")):"Mauvaise message ajouté" ;
+
+        // message de petits entiers
+        short i = 72 ;
+        short j = 69 ;
+        short k = 89 ;
+
+        m = new Message(i, j, k) ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("72.69.89.125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("72.69.89.125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("72.69.89.125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+        
+        m.ajouter(new Octet(124)) ;
+        assert(m.toString().equals("72.69.89.125.95.136.0.120.124")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse(32) ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("72.69.89.125.95.136.0.120.124.0.0.0.0")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("HEY") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("72.69.89.125.95.136.0.120.124.0.0.0.0.72.69.89")):"Mauvaise message ajouté" ;
+
+        // message de grands entiers (faisant un appel tacite à cette méthode)
+        m = new Message(245, 894, 0, 7047, 7) ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+
+        m.ajouter(new Octet(124)) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125.95.136.0.120.124")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse("124.25.0.0") ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125.95.136.0.120.124.124.25.0.0")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("HEY") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("0.245.3.126.0.0.27.135.0.7.125.95.136.0.120.124.124.25.0.0.72.69.89")):"Mauvaise message ajouté" ;
+
+        // message avec une chaîne de caractères en paramètre
+        m = new Message("Salut !") ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+
+        m.ajouter(new Octet()) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125.95.136.0.120.0")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse("1.1.2.155") ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125.95.136.0.120.0.1.1.2.155")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("HEY") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("83.97.108.117.116.32.33.125.95.136.0.120.0.1.1.2.155.72.69.89")):"Mauvaise message ajouté" ;
+
+        // message avec une adresse en paramètre
+        a = new Adresse("187.25.63.1") ;
+        m = new Message(a) ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("187.25.63.1.125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("187.25.63.1.125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("187.25.63.1.125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+
+        m.ajouter(new Octet(14)) ;
+        assert(m.toString().equals("187.25.63.1.125.95.136.0.120.14")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse(new Octet(22), new Octet(57), new Octet(34), new Octet(245)) ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("187.25.63.1.125.95.136.0.120.14.22.57.34.245")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("lol") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("187.25.63.1.125.95.136.0.120.14.22.57.34.245.108.111.108")):"Mauvaise message ajouté" ;
+
+        // messge avec un message en paramètre
+        mBis = new Message(5879, 63000, 245, 87) ;
+        m = new Message(mBis) ;
+        m.ajouter(ajout) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125")):"Mauvais octet ajouté (short)" ;
+        m.ajouter(ajoutGrand) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136")):"Mauvais octet ajouté (int)" ;
+        m.ajouter(ajoutGrandPrime) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120")):"Mauvais octet ajouté (int)" ;
+
+        m.ajouter(new Octet(124)) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120.124")):"Mauvais octet ajouté (octet)" ;
+        a = new Adresse(32) ;
+        m.ajouter(a) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120.124.0.0.0.0")):"Mauvaise adresse ajoutée" ;
+        mBis = new Message("lol") ;
+        m.ajouter(mBis) ;
+        assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120.124.0.0.0.0.108.111.108")):"Mauvaise message ajouté" ;
+    }
+
+    public static void testAugmenter()
+    {
+        Message m ;
+        Message mBis ;
+        Adresse a ;
+        boolean b ;
+
+        // message de petits entiers
+        short i = 72 ;
+        short j = 69 ;
+        short k = 89 ;
+
+        m = new Message(i, j, k) ;
+        m.augmenter(20,1,2) ;
+        assert(m.toString().equals("72.89.109")):"Mauvaise augmentation" ;
+
+        // message de grands entiers
+        m = new Message(245, 894, 0, 7047, 7) ;
+        m.augmenter(10,1,8) ;
+        b = ( m.toString().equals("0.255.13.136.10.10.37.145.10.7") ) ;
+        assert b : "Mauvaise augmentation" ;
+
+        // message avec une chaîne de caractères en paramètre
+        m = new Message("Salut !") ;
+        m.augmenter(50,0,1) ;
+        b = ( m.toString().equals("133.147.108.117.116.32.33")) ;
+        assert b : "Mauvaise agmentation" ;
+
+        // message avec une adresse en paramètre
+        a = new Adresse("187.25.63.1") ;
+        m = new Message(a) ;
+        m.augmenter(0,0,3) ;
+        b = ( m.toString().equals("187.25.63.1")) ;
+        assert b : "Mauvaise augmentation" ;
+
+        // messge avec un message en paramètre
+        mBis = new Message("KernelPanic") ;
+        m = new Message(mBis) ;
+        m.augmenter(100,0,8) ;
+        b = ( m.toString().equals("175.201.214.210.201.208.180.197.210.105.99") ) ;
+        assert b : "Mauvaise augmentation" ;
+    }
+
+    public static void testSupprimer()
+    {
+        Message m ;
+        Message mBis ;
+        Adresse a ;
+        boolean b ;
+
+        // message de petits entiers
+        short i = 72 ;
+        short j = 69 ;
+        short k = 89 ;
+        short l = 142 ;
+        short n = 0 ;
+        short o = 14 ;
+
+        m = new Message(i, j, k, l, n, o) ;
+        m.supprimer(2) ;
+        assert(m.toString().equals("89.142.0.14")):"Mauvaise suppression" ;
+        m.supprimer(1,2) ;
+        assert(m.toString().equals("89.14")):"Mauvaise suppression" ;
+
+        // message de grands entiers
+        m = new Message(245, 894, 0, 7047, 7) ;
+        m.supprimer(5) ;
+        b = ( m.toString().equals("0.27.135.0.7") ) ;
+        assert b : "Mauvaise suppression" ;
+        m.supprimer(2,4) ;
+        b = ( m.toString().equals("0.27")) ;
+        assert b : "Mauvaise suppression" ;
+
+        // message avec une chaîne de caractères en paramètre
+        m = new Message("Salut !") ;
+        m.supprimer(0) ;
+        b = ( m.toString().equals("83.97.108.117.116.32.33")) ;
+        assert b : "Mauvaise suppression" ;
+        m.supprimer(0,6) ;
+        b = ( m.toString().equals("")) ;
+        assert b : "Mauvaise suppression" ;
+
+        // message avec une adresse en paramètre
+        a = new Adresse("187.25.63.1") ;
+        m = new Message(a) ;
+        m.supprimer(1) ;
+        b = ( m.toString().equals("25.63.1")) ;
+        assert b : "Mauvaise suppression" ;
+        m.supprimer(2,2) ;
+        b = ( m.toString().equals("25.63")) ;
+        assert b : "Mauvaise suppression" ;
+
+        // messge avec un message en paramètre
+        mBis = new Message("KernelPanic") ;
+        m = new Message(mBis) ;
+        m.supprimer(5) ;
+        b = ( m.toString().equals("108.80.97.110.105.99") ) ;
+        assert b : "Mauvaise suppression" ;
+        m.supprimer(0,0) ;
+        b = ( m.toString().equals("80.97.110.105.99")) ;
+        assert b : "Mauvaise suppression" ;
     }
 }
