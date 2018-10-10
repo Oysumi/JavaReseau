@@ -1,5 +1,6 @@
 package calc.tests ;
-import calc.* ;
+import calc.Produit ;
+import calc.Nombre ;
 
 public class TestProduit
 {

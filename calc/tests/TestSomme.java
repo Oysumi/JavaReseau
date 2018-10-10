@@ -1,5 +1,6 @@
 package calc.tests ;
-import calc.* ;
+import calc.Somme ;
+import calc.Nombre ;
 
 public class TestSomme
 {

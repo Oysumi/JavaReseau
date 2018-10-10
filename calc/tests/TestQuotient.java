@@ -1,5 +1,6 @@
 package calc.tests ;
-import calc.* ;
+import calc.Quotient ;
+import calc.Nombre ;
 
 public class TestQuotient
 {

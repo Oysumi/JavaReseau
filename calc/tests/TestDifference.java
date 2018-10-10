@@ -1,5 +1,6 @@
 package calc.tests ;
-import calc.* ;
+import calc.Difference ;
+import calc.Nombre ;
 
 public class TestDifference
 {

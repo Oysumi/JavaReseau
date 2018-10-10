@@ -420,7 +420,7 @@ public class TestMessage
         a = new Adresse(32) ;
         m.ajouter(a) ;
         assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120.124.0.0.0.0")):"Mauvaise adresse ajoutée" ;
-        mBis = new Message("lol") ;
+        mBis = new Message("lol") ; // 108.111.108
         m.ajouter(mBis) ;
         assert(m.toString().equals("22.247.246.24.0.245.0.87.125.95.136.0.120.124.0.0.0.0.108.111.108")):"Mauvaise message ajouté" ;
     }
