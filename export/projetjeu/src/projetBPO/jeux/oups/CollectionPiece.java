@@ -4,14 +4,19 @@ public class CollectionPiece {
 
     private Piece[] collection ;
 
-    /* FAIRE UN CONSTRUCTEUR ALÉATOIRE */
+    public CollectionPiece(int taille) {
+        collection = new Piece[taille] ;
+        for (int i = 0 ; i < taille ; i++){
+            collection[i] = new Piece(i+1);
+        }
+    }
 
     public CollectionPiece(Piece ... salles){
         collection = salles ;
     }
 
     public void ouvrirFermer(int numero) throws IndexOutOfBoundsException{
-        collection[numero].changeTrappe();
+        collection[numero-1].changeTrappe();
     }
 
     public int nbSalles(){
@@ -19,10 +24,10 @@ public class CollectionPiece {
     }
 
     public Piece getPiece(int numero) throws IndexOutOfBoundsException{
-        return collection[numero] ;
+        return collection[numero - 1] ;
     }
 
     public void ajouterTresor(int numero) throws IndexOutOfBoundsException{
-        collection[numero].ajouteTresor();
+        collection[numero - 1].ajouteTresor();
     }
 }

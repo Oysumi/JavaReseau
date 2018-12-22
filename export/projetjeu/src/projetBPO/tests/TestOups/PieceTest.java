@@ -2,6 +2,7 @@ package projetBPO.tests.TestOups;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import projetBPO.jeux.oups.Passage;
 import projetBPO.jeux.oups.Piece;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +24,35 @@ class PieceTest {
         salleQuatre = new Piece(true, true,4);
         salleCinq = new Piece(false, false,5);
         salleSix = new Piece(6);
+
+        /*
+
+                ______ ______ ______
+               |      |      |      |
+               |  P1     P2     T3  |       T = TRÉSOR
+               |__  __|__  __|______|       P = PIEGE
+               |      |      |      |
+               | PT4  |   5      6  |
+               |______|______|______|
+
+         */
+
+        Passage passageUn = new Passage(salleUn, salleDeux);
+        Passage passageDeux = new Passage(salleUn, salleQuatre);
+        Passage passageTrois = new Passage(salleDeux, salleTrois);
+        Passage passageQuatre = new Passage(salleDeux, salleCinq);
+        Passage passageCinq = new Passage(salleCinq, salleSix);
+
+        salleUn.ajouterPassage(passageUn);
+        salleUn.ajouterPassage(passageDeux);
+        salleDeux.ajouterPassage(passageUn);
+        salleDeux.ajouterPassage(passageTrois);
+        salleDeux.ajouterPassage(passageQuatre);
+        salleTrois.ajouterPassage(passageTrois);
+        salleQuatre.ajouterPassage(passageDeux);
+        salleCinq.ajouterPassage(passageQuatre);
+        salleCinq.ajouterPassage(passageCinq);
+        salleSix.ajouterPassage(passageCinq);
     }
 
     @Test
@@ -306,6 +336,162 @@ class PieceTest {
         }
         if (!salleSix.toString().equals("Numéro : 6 | Trésor : true | Trappe : true")){
             fail("La description de la salle n'est pas bonne.");
+        }
+    }
+
+    @Test
+    void passagesTest(){
+        if (salleUn.nbPassages() != 2){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+        if (salleDeux.nbPassages() != 3){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+        if (salleTrois.nbPassages() != 1){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+        if (salleQuatre.nbPassages() != 1){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+        if (salleCinq.nbPassages() != 2){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+        if (salleSix.nbPassages() != 1){
+            fail("La salle n'a pas le bon nombre de passages.");
+        }
+
+        /*********************************************************************/
+
+        if (salleUn.getPassage(1).activePiege()){
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleUn.getPassage(2).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(1).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(2).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(3).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleTrois.getPassage(1).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleQuatre.getPassage(1).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleCinq.getPassage(1).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleCinq.getPassage(2).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleSix.getPassage(1).activePiege()) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+
+        /*********************************************************************/
+
+        if (salleUn.getPassage(1).activeTrappe() != -1){
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleUn.getPassage(2).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(1).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(2).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleDeux.getPassage(3).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleTrois.getPassage(1).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleQuatre.getPassage(1).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleCinq.getPassage(1).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleCinq.getPassage(2).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+        if (salleSix.getPassage(1).activeTrappe() != -1) {
+            fail("Le passage ne devrait activer aucun piège.");
+        }
+
+        /*********************************************************************/
+
+        if (!salleUn.getPassage(1).premiereSalle().toString().equals("Numéro : 1 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleUn.getPassage(1).secondeSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleUn.getPassage(2).premiereSalle().toString().equals("Numéro : 1 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleUn.getPassage(2).secondeSalle().toString().equals("Numéro : 4 | Trésor : true | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+
+        if (!salleDeux.getPassage(1).premiereSalle().toString().equals("Numéro : 1 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleDeux.getPassage(1).secondeSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleDeux.getPassage(2).premiereSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleDeux.getPassage(2).secondeSalle().toString().equals("Numéro : 3 | Trésor : true | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleDeux.getPassage(3).premiereSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleDeux.getPassage(3).secondeSalle().toString().equals("Numéro : 5 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+
+        if (!salleTrois.getPassage(1).premiereSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleTrois.getPassage(1).secondeSalle().toString().equals("Numéro : 3 | Trésor : true | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+
+        if (!salleQuatre.getPassage(1).premiereSalle().toString().equals("Numéro : 1 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleQuatre.getPassage(1).secondeSalle().toString().equals("Numéro : 4 | Trésor : true | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+
+        if (!salleCinq.getPassage(1).premiereSalle().toString().equals("Numéro : 2 | Trésor : false | Trappe : true")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleCinq.getPassage(1).secondeSalle().toString().equals("Numéro : 5 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleCinq.getPassage(2).premiereSalle().toString().equals("Numéro : 5 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleCinq.getPassage(2).secondeSalle().toString().equals("Numéro : 6 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+
+        if (!salleSix.getPassage(1).premiereSalle().toString().equals("Numéro : 5 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
+        }
+        if (!salleSix.getPassage(1).secondeSalle().toString().equals("Numéro : 6 | Trésor : false | Trappe : false")){
+            fail("La salle ne contient pas le bon passage.");
         }
     }
 }

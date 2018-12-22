@@ -1,13 +1,16 @@
-package projetBPO.jeux.oups;
+package projetBPO.tests.TestOups;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import projetBPO.jeux.oups.CollectionPiece;
+import projetBPO.jeux.oups.Piece;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CollectionPieceTest {
 
     private CollectionPiece collec ;
+    private CollectionPiece collecVide ;
 
     @BeforeEach
     void setUp(){
@@ -21,6 +24,8 @@ class CollectionPieceTest {
         Piece huit = new Piece(8);
 
         collec = new CollectionPiece(un, deux, trois, quatre, cinq, six, sept, huit);
+
+        collecVide = new CollectionPiece(5); // Une collection de 5 pièces
     }
 
     @Test
@@ -50,6 +55,25 @@ class CollectionPieceTest {
             fail("La collection de pièces ne contient pas les bonnes pièces.");
         }
         if (!collec.getPiece(8).toString().equals("Numéro : 8 | Trésor : false | Trappe : false")){
+            fail("La collection de pièces ne contient pas les bonnes pièces.");
+        }
+
+        if (collecVide.nbSalles() != 5){
+            fail("La collection de pièces n'a pas le bon nombre de pièces : " + collecVide.nbSalles());
+        }
+        if (!collecVide.getPiece(1).toString().equals("Numéro : 1 | Trésor : false | Trappe : false")){
+            fail("La collection de pièces ne contient pas les bonnes pièces.");
+        }
+        if (!collecVide.getPiece(2).toString().equals("Numéro : 2 | Trésor : false | Trappe : false")){
+            fail("La collection de pièces ne contient pas les bonnes pièces.");
+        }
+        if (!collecVide.getPiece(3).toString().equals("Numéro : 3 | Trésor : false | Trappe : false")){
+            fail("La collection de pièces ne contient pas les bonnes pièces.");
+        }
+        if (!collecVide.getPiece(4).toString().equals("Numéro : 4 | Trésor : false | Trappe : false")){
+            fail("La collection de pièces ne contient pas les bonnes pièces.");
+        }
+        if (!collecVide.getPiece(5).toString().equals("Numéro : 5 | Trésor : false | Trappe : false")){
             fail("La collection de pièces ne contient pas les bonnes pièces.");
         }
     }

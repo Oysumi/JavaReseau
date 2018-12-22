@@ -12,6 +12,11 @@ public class Passage {
         salleDeux = secondeSalle ;
     }
 
+    public Passage(Piece premiereSalle, Piece secondeSalle, int noSalleTrappe){
+        this(premiereSalle, secondeSalle) ;
+        ajouterPiege(noSalleTrappe);
+    }
+
     public void ajouterPiege(int sallePiege){
         activeTrappe = true ;
         numSalleTrappe = sallePiege ;
